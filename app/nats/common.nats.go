@@ -11,9 +11,8 @@ var err error
 
 func Init() error {
 	url := os.Getenv("NATS_URL")
-	port := os.Getenv("NATS_PORT")
 
-	connection, err = nats.Connect(url + ":" + port)
+	connection, err = nats.Connect(url)
 
 	if err != nil {
 		return err

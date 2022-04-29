@@ -5,6 +5,7 @@ import (
 	"course-work/app/types"
 	"course-work/app/vocabulary"
 	"fmt"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -14,8 +15,10 @@ var session *types.RedisSession
 func Init() error {
 	var ctx context.Context = context.Background()
 
+	url := os.Getenv("REDIS_URL")
+
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     url,
 		Password: "",
 		DB:       0,
 	})
