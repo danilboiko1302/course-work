@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var session *types.RedisSession
+var Session *types.RedisSession
 
 func Init() error {
 	var ctx context.Context = context.Background()
@@ -28,14 +28,20 @@ func Init() error {
 		return fmt.Errorf(vocabulary.REDIS_CONNECTION_PROBLEM, err.Error())
 	}
 
-	session = &types.RedisSession{
+	Session = &types.RedisSession{
 		Ctx:    ctx,
 		Client: client,
 	}
 
+	clearAll()
+
 	return nil
 }
 
+func clearAll() {
+	Session.Client.FlushAll(Session.Ctx)
+}
+
 func Close() {
-	session.Client.Close()
+	Session.Client.Close()
 }
