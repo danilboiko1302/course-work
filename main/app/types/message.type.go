@@ -13,6 +13,8 @@ const (
 	Down
 	Right
 	Left
+	SendMessage
+	GetHistory
 )
 
 type ActionFront uint16
@@ -25,6 +27,9 @@ const (
 	LogedIn
 	Field
 	Lost
+	NewAdmin
+	GetMessage
+	GetMessages
 )
 
 type MessageFront struct {

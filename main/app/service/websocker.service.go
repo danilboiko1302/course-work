@@ -63,6 +63,10 @@ func HandleMessage(room string, msg types.Message, user *types.User) (*types.Mes
 		{
 			return getUsers(room, user)
 		}
+	case types.SetAdmin:
+		{
+			return setAdmin(room, msg.Data, user)
+		}
 	case types.GetField:
 		{
 			return getField(room, user)
@@ -83,9 +87,64 @@ func HandleMessage(room string, msg types.Message, user *types.User) (*types.Mes
 		{
 			return move(room, user, types.MoveRight)
 		}
+	case types.SendMessage:
+		{
+			return sendMessage(room, msg.Data, user)
+		}
+	case types.GetHistory:
+		{
+			return getHistroy(room, user)
+		}
 	}
 
 	return nil, nil, errors.New(vocabulary.UNKNOWN_ACTION)
+}
+
+func getHistroy(room string, user *types.User) (*types.MessageFront, *types.MessageFront, error) {
+	if !user.LoggedIn {
+		return nil, nil, errors.New("you are not logined in")
+	}
+
+	return &types.MessageFront{
+		Action: types.GetMessages,
+		Data:   getHistroyRedis(room),
+	}, nil, nil
+}
+
+func sendMessage(room, data string, user *types.User) (*types.MessageFront, *types.MessageFront, error) {
+	if !user.LoggedIn {
+		return nil, nil, errors.New("you are not logined in")
+	}
+
+	sendMessageChan(room, user.Name+": "+data)
+
+	return &types.MessageFront{
+		Action: types.GetMessage,
+		Data:   user.Name + ": " + data,
+	}, nil, nil
+}
+
+func setAdmin(room, name string, user *types.User) (*types.MessageFront, *types.MessageFront, error) {
+	if !user.LoggedIn {
+		return nil, nil, errors.New("you are not logined in")
+	}
+
+	admin := findAdmin(room)
+
+	if admin != user.Name {
+		return nil, nil, errors.New("you are not admin")
+	}
+
+	if admin == name {
+		return nil, nil, errors.New("you are already admin")
+	}
+
+	setAdminRedis(room, name)
+
+	return &types.MessageFront{
+		Action: types.NewAdmin,
+		Data:   name,
+	}, nil, nil
 }
 
 func move(room string, user *types.User, direction types.Move) (*types.MessageFront, *types.MessageFront, error) {
@@ -121,8 +180,7 @@ func move(room string, user *types.User, direction types.Move) (*types.MessageFr
 		}
 	}
 	newField := step(field)
-	fmt.Println("field", field)
-	fmt.Println("newField", newField)
+
 	if compare(field, newField) {
 		return nil, nil, errors.New("you can`t do this move")
 	}
@@ -395,7 +453,7 @@ func login(room string, name string, user *types.User) (*types.MessageFront, *ty
 	admin := findAdmin(room)
 
 	if admin == "" {
-		setAdmin(room, name)
+		setAdminRedis(room, name)
 	}
 
 	return &types.MessageFront{

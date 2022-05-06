@@ -41,43 +41,65 @@
       <input id="name" />
       <button id="login">login</button>
     </div>
-    <div id="body" style="display: none">
-      <p id="hello">Hello,</p>
-      <button id="logout">logout</button>
-      <h3>Users</h3>
-      <ul id="users"></ul>
-
-      <table id="field">
-        <tr>
-          <th>2048</th>
-          <th>2</th>
-          <th>128</th>
-          <th>16</th>
-        </tr>
-        <tr>
-          <th>2048</th>
-          <th>2048</th>
-          <th>2048</th>
-          <th>2048</th>
-        </tr>
-        <tr>
-          <th>2048</th>
-          <th>2048</th>
-          <th>2048</th>
-          <th>2048</th>
-        </tr>
-        <tr>
-          <th>2048</th>
-          <th>2048</th>
-          <th>2048</th>
-          <th>2048</th>
-        </tr>
-      </table>
-
-      <button id="up">UP</button>
-      <button id="down">DOWN</button>
-      <button id="left">LEFT</button>
-      <button id="right">RIGHT</button>
+    <div id="body" style="display: none" class="row">
+      <div class="column" style="background-color: #aaa">
+        <div style="margin-top: 10px; margin-right: 10%; margin-left: 10%">
+          <p id="hello">Hello,</p>
+          <button id="logout">logout</button>
+          <h3>Users</h3>
+          <ul id="users"></ul>
+        </div>
+      </div>
+      <div class="column" style="background-color: #bbb">
+        <table id="field">
+          <tr>
+            <th>2048</th>
+            <th>2</th>
+            <th>128</th>
+            <th>16</th>
+          </tr>
+          <tr>
+            <th>2048</th>
+            <th>2048</th>
+            <th>2048</th>
+            <th>2048</th>
+          </tr>
+          <tr>
+            <th>2048</th>
+            <th>2048</th>
+            <th>2048</th>
+            <th>2048</th>
+          </tr>
+          <tr>
+            <th>2048</th>
+            <th>2048</th>
+            <th>2048</th>
+            <th>2048</th>
+          </tr>
+        </table>
+        <div style="margin-right: 35%; margin-left: 35%">
+          <button id="up">UP</button>
+          <button id="down">DOWN</button>
+          <button id="left">LEFT</button>
+          <button id="right">RIGHT</button>
+        </div>
+      </div>
+      <div class="column" style="background-color: #ccc">
+        <div style="margin-top: 10px; margin-right: 10%; margin-left: 10%">
+          <h2>Chat</h2>
+          <div
+            id="chat"
+            style="
+              overflow: auto;
+              max-height: 250px;
+              max-width: 100%;
+              height: auto;
+            "
+          ></div>
+          <input type="text" id="send-input" />
+          <button id="send">Send Message</button>
+        </div>
+      </div>
     </div>
   </body>
   <script src="js/room.js"></script>

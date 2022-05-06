@@ -51,7 +51,7 @@ func GetRoute() *gin.Engine {
 			defer ws.Close()
 
 			user := &types.User{}
-
+			// messagesChan := make(chan string, 1)
 			unsub, err := nats.Connection.Sub(roomName, func(data []byte) {
 				go func(r io.Reader) {
 					var msg types.MessageFront
@@ -61,11 +61,20 @@ func GetRoute() *gin.Engine {
 						return
 					}
 
-					if user.LoggedIn && user.Name != msg.Data {
+					if user.LoggedIn {
 						ws.WriteJSON(msg)
 					}
 				}(bytes.NewReader(data))
 			})
+
+			// go func() {
+			// 	for {
+			// 		message := <-messagesChan
+			// 		if user.LoggedIn {
+			// 			ws.WriteJSON(msg)
+			// 		}
+			// 	}
+			// }()
 
 			if err != nil {
 				log.Println("error when sub to nats")

@@ -9,9 +9,38 @@ import (
 	"strings"
 )
 
+func sendMessageChan(room, message string) {
+	getChan(room) <- message
+}
+
+func getHistroyRedis(room string) string {
+	data := redis.Session.Client.Get(redis.Session.Ctx, room+consts.ChatKey)
+	if data.Val() == "" {
+		return "[]"
+	}
+
+	return data.Val()
+}
+
+func saveMessageRedis(room, message string) {
+	data := redis.Session.Client.Get(redis.Session.Ctx, room+consts.ChatKey)
+
+	var messages []string = make([]string, 0)
+
+	if data.Val() != "" {
+		json.Unmarshal([]byte(data.Val()), &messages)
+	}
+
+	bytes, _ := json.Marshal(append(messages, message))
+
+	redis.Session.Client.Set(redis.Session.Ctx, room+consts.ChatKey, string(bytes), 0)
+}
+
 func getAllUserInRoom(room string) ([]string, error) {
 	data := redis.Session.Client.Get(redis.Session.Ctx, room+consts.UsersKey)
+
 	var users []string = make([]string, 0)
+
 	if data.Val() == "" {
 		return users, nil
 	}
@@ -50,6 +79,7 @@ func RemoveFromRoom(room string, user *types.User) error {
 	if err != nil {
 		return err
 	}
+
 	for i, userChat := range users {
 		if userChat == user.Name {
 			users = remove(i, users)
@@ -66,6 +96,20 @@ func RemoveFromRoom(room string, user *types.User) error {
 	}
 
 	redis.Session.Client.Set(redis.Session.Ctx, room+consts.UsersKey, string(bytes), 0)
+
+	admin := findAdmin(room)
+
+	if admin == user.Name {
+		if len(users) == 0 {
+			setAdminRedis(room, "")
+		} else {
+			setAdminRedis(room, users[0])
+			Pub(room, &types.MessageFront{
+				Action: types.NewAdmin,
+				Data:   users[0],
+			})
+		}
+	}
 
 	return nil
 }
@@ -88,7 +132,7 @@ func findAdmin(room string) string {
 	return redis.Session.Client.Get(redis.Session.Ctx, room+consts.AdminKey).Val()
 }
 
-func setAdmin(room, name string) {
+func setAdminRedis(room, name string) {
 	redis.Session.Client.Set(redis.Session.Ctx, room+consts.AdminKey, name, 0)
 }
 
