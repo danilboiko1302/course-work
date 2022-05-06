@@ -7,7 +7,6 @@ import (
 	"course-work/app/types"
 	"encoding/gob"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
@@ -51,10 +50,18 @@ func GetRoute() *gin.Engine {
 			defer ws.Close()
 
 			user := &types.User{}
-			// messagesChan := make(chan string, 1)
+			messagesChan := make(chan string, 1)
 			unsub, err := nats.Connection.Sub(roomName, func(data []byte) {
-				go func(r io.Reader) {
+				messagesChan <- string(data)
+			})
+
+			go func() {
+				for {
+					message := <-messagesChan
+
 					var msg types.MessageFront
+
+					r := bytes.NewReader([]byte(message))
 
 					if err := gob.NewDecoder(r).Decode(&msg); err != nil {
 						log.Println("error decoding message")
@@ -64,17 +71,9 @@ func GetRoute() *gin.Engine {
 					if user.LoggedIn {
 						ws.WriteJSON(msg)
 					}
-				}(bytes.NewReader(data))
-			})
 
-			// go func() {
-			// 	for {
-			// 		message := <-messagesChan
-			// 		if user.LoggedIn {
-			// 			ws.WriteJSON(msg)
-			// 		}
-			// 	}
-			// }()
+				}
+			}()
 
 			if err != nil {
 				log.Println("error when sub to nats")
