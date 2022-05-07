@@ -1,7 +1,10 @@
-url = "localhost:8000/room/";
+url = "ec2-3-121-100-120.eu-central-1.compute.amazonaws.com:80/room/";
 
-url += window.location.href.replace("http://localhost:8000/", "");
-
+url += window.location.href.replace(
+  "http://ec2-3-121-100-120.eu-central-1.compute.amazonaws.com/",
+  ""
+);
+console.log(url);
 var exampleSocket = new WebSocket("ws://" + url);
 const Action = {
   Login: 1,
