@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+}
+
+table {
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 10px;
+}
+
+tr {
+  height: 50px;
+}
+
+th {
+  width: 50px;
+}
+
+.column {
+  float: left;
+  width: 33%;
+  min-width: 300px;
+  height: 400px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+button {
+  background-color: #4caf50; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 5px;
+  margin: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 100px;
+  font-size: 16px;
+  border-radius: 8px;
+  transition-duration: 0.4s;
+}
+
+button:hover {
+  background-color: red; /* Green */
+}

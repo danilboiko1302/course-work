@@ -1,0 +1,37 @@
+version: "3.7"
+
+services:
+  main:
+    container_name: main
+    build:
+      context: ./main
+      dockerfile: Dockerfile
+    volumes:
+      - ./main:/usr/src/app
+    command: fresh
+    ports:
+      - 8000:8000
+    working_dir: /usr/src/app
+    depends_on:
+      - rediss
+      - nats
+    restart: unless-stopped
+    networks:
+      - backend
+
+
+  rediss:
+    container_name: rediss
+    image: redis:6.0
+    networks:
+      - backend
+
+  nats:
+    container_name: nats
+    image: nats:2.8.2
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
