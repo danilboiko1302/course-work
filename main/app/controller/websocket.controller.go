@@ -1,11 +1,10 @@
 package controller
 
 import (
-	"bytes"
 	"course-work/app/nats"
 	"course-work/app/service"
 	"course-work/app/types"
-	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -58,20 +57,9 @@ func GetRoute() *gin.Engine {
 			go func() {
 				for {
 					message := <-messagesChan
-
-					var msg types.MessageFront
-
-					r := bytes.NewReader([]byte(message))
-
-					if err := gob.NewDecoder(r).Decode(&msg); err != nil {
-						log.Println("error decoding message")
-						return
-					}
-
 					if user.LoggedIn {
-						ws.WriteJSON(msg)
+						ws.WriteMessage(websocket.TextMessage, []byte(message))
 					}
-
 				}
 			}()
 
@@ -116,10 +104,13 @@ func GetRoute() *gin.Engine {
 
 				if err != nil {
 					log.Println(err.Error())
-					err = ws.WriteJSON(gin.H{"error": err.Error()})
+
+					bytes, err := json.Marshal(gin.H{"error": err.Error()})
 					if err != nil {
-						log.Println("error write json: " + err.Error())
+						log.Println("error json.Marshal: " + err.Error())
+						continue
 					}
+					messagesChan <- string(bytes)
 					continue
 				}
 
@@ -131,7 +122,12 @@ func GetRoute() *gin.Engine {
 				}
 
 				if myMsg != nil {
-					ws.WriteJSON(myMsg)
+					bytes, err := json.Marshal(myMsg)
+					if err != nil {
+						log.Println("error json.Marshal: " + err.Error())
+						continue
+					}
+					messagesChan <- string(bytes)
 				}
 
 			}

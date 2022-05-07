@@ -33,16 +33,14 @@ func Sub(name string) (func() error, error) {
 }
 
 func Pub(name string, msg *types.MessageFront) error {
-	var b bytes.Buffer
-
-	err := gob.NewEncoder(&b).Encode(msg)
+	bytes, err := json.Marshal(msg)
 
 	if err != nil {
-		log.Println("error convert msg to bytes")
+		log.Println("error json.Marshal: " + err.Error())
 		return err
 	}
 
-	return nats.Connection.Pub(name, b.Bytes())
+	return nats.Connection.Pub(name, bytes)
 }
 
 func HandleMessage(room string, msg types.Message, user *types.User) (*types.MessageFront, *types.MessageFront, error) {
